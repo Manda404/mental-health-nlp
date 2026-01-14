@@ -1,0 +1,84 @@
+[tool.poetry]
+name = "mh-nlp"
+version = "0.1.0"
+description = "Mental Health NLP - Clean Architecture, FastAPI, MLOps"
+authors = ["Manda Surel <s239150.eps@gmail.com>"]
+readme = "README.md"
+packages = [{include = "mh_nlp", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+# Core
+numpy = "^1.26.0"
+pandas = "^2.2.0"
+scikit-learn = "^1.4.0"
+pyyaml = "^6.0.1"
+
+# Logging
+loguru = "^0.7.2"
+
+# NLP
+spacy = "^3.7.2"
+
+# PyTorch / Transformers
+torch = "^2.2.0"
+transformers = "^4.37.0"
+
+# TensorFlow / Keras
+tensorflow = "^2.15.0"
+
+# .env
+python-dotenv = "^1.2.1"
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+
+# Lint / format
+ruff = "^0.3.0"
+
+# Typing
+mypy = "^1.8.0"
+types-PyYAML = "^6.0.12.12"
+
+# Notebooks
+jupyter = "^1.0.0"
+ipykernel = "^6.29.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# =========================
+# Ruff (Linter & Formatter)
+# =========================
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+src = ["src"]
+extend-exclude = ["*.ipynb"] 
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "N"]
+ignore = ["E501"] 
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# =========================
+# Pytest
+# =========================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --cov=src/mh_nlp --cov-report=term-missing"
+
+# =========================
+# Mypy
+# =========================
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+ignore_missing_imports = true

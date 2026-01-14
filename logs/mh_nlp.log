@@ -1,0 +1,4 @@
+2026-01-14 11:55:05.769 | SUCCESS  | mh_nlp.utils.logging:setup_logger:104 - Logging initialisé [Level: DEBUG | JSON: False]
+2026-01-14 11:55:05.770 | INFO     | __main__:<module>:9 - Système NLP initialisé avec succès
+2026-01-14 11:56:15.534 | SUCCESS  | mh_nlp.utils.logging:setup_logger:104 - Logging initialisé [Level: DEBUG | JSON: False]
+2026-01-14 11:56:15.534 | INFO     | __main__:<module>:9 - Système NLP initialisé avec succès
