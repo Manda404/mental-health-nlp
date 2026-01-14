@@ -1,4 +1,13 @@
-2026-01-14 11:55:05.769 | SUCCESS  | mh_nlp.utils.logging:setup_logger:104 - Logging initialisé [Level: DEBUG | JSON: False]
-2026-01-14 11:55:05.770 | INFO     | __main__:<module>:9 - Système NLP initialisé avec succès
-2026-01-14 11:56:15.534 | SUCCESS  | mh_nlp.utils.logging:setup_logger:104 - Logging initialisé [Level: DEBUG | JSON: False]
-2026-01-14 11:56:15.534 | INFO     | __main__:<module>:9 - Système NLP initialisé avec succès
+2026-01-14 14:41:55.321 | SUCCESS  | mh_nlp.utils.logging:setup_logger:99 - Logging initialisé [Level: DEBUG | JSON: False]
+2026-01-14 14:41:55.321 | INFO     | __main__:<module>:13 - Logger initialisé dans le Notebook !
+2026-01-14 14:41:55.321 | INFO     | mh_nlp.infrastructure.data.kaggle_repository:load:30 - Démarrage du chargement des données depuis : ../data/raw/mental_health.csv
+2026-01-14 14:41:56.456 | SUCCESS  | mh_nlp.infrastructure.data.kaggle_repository:load:54 - Infrastructure : 53043 paires (Document, Label) créées.
+2026-01-14 14:42:15.228 | INFO     | mh_nlp.infrastructure.data.kaggle_repository:load:30 - Démarrage du chargement des données depuis : ../data/raw/mental_health.csv
+2026-01-14 14:42:16.448 | SUCCESS  | mh_nlp.infrastructure.data.kaggle_repository:load:54 - Infrastructure : 53043 paires (Document, Label) créées.
+2026-01-14 14:42:50.506 | SUCCESS  | mh_nlp.utils.logging:setup_logger:99 - Logging initialisé [Level: DEBUG | JSON: False]
+2026-01-14 14:42:50.508 | INFO     | mh_nlp.infrastructure.data.kaggle_repository:load:30 - Démarrage du chargement des données depuis : ../data/raw/mental_health.csv
+2026-01-14 14:42:51.701 | SUCCESS  | mh_nlp.infrastructure.data.kaggle_repository:load:54 - Infrastructure : 53043 paires (Document, Label) créées.
+2026-01-14 14:43:16.343 | SUCCESS  | mh_nlp.utils.logging:setup_logger:99 - Logging initialisé [Level: DEBUG | JSON: False]
+2026-01-14 14:43:16.344 | INFO     | __main__:<module>:13 - Logger initialisé dans le Notebook !
+2026-01-14 14:43:34.469 | INFO     | mh_nlp.infrastructure.data.kaggle_repository:load:30 - Démarrage du chargement des données depuis : ../data/raw/mental_health.csv
+2026-01-14 14:43:35.765 | SUCCESS  | mh_nlp.infrastructure.data.kaggle_repository:load:54 - Infrastructure : 53043 paires (Document, Label) créées.

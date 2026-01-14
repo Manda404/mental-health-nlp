@@ -5,8 +5,8 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Union, cast
 from types import FrameType
+from typing import Union
 
 from loguru import logger
 
@@ -72,7 +72,7 @@ def setup_logger(
 
     # 3. Configuration Fichier (si activé)
     if enable_file:
-        log_path = Path(log_dir) # Convertit en Path au cas où c'est un str
+        log_path = Path(log_dir)  # Convertit en Path au cas où c'est un str
         log_path.mkdir(parents=True, exist_ok=True)
 
         logger.add(
