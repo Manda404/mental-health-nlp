@@ -1,9 +1,10 @@
+# mh_nlp/domain/services/text_cleaner.py
 import re
 
 from loguru import logger
 
 from mh_nlp.domain.entities.document import Document
-from mh_nlp.domain.ports.cleaningengine import CleaningEngine
+from mh_nlp.domain.ports.cleaning_engine import CleaningEngine
 
 
 class TextCleaner:
@@ -30,6 +31,11 @@ class TextCleaner:
 
     def __init__(self, engine: CleaningEngine):
         self.engine = engine
+
+        # On vérifie si l'engine a un batch_size (cas du SpacyTokenizerAdapter)
+        self.has_batch_mode = getattr(engine, "batch_size", None) is not None
+        logger.debug(f"TextCleaner initialisé avec {engine.__class__.__name__} (Batch mode: {self.has_batch_mode})")
+
         logger.debug(f"TextCleaner initialisé avec {engine.__class__.__name__}")
 
     def clean(self, document: Document) -> str:

@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-
 class CleaningEngine(ABC):
     """
     Interface abstraite (Port) définissant le contrat pour les moteurs de traitement.
@@ -15,7 +14,7 @@ class CleaningEngine(ABC):
     @abstractmethod
     def process_text(self, text: str) -> List[str]:
         """
-        Transforme une chaîne en liste de tokens (lemmes/racines).
+        Transforme une seule chaîne en liste de tokens (lemmes/racines).
 
         Args:
             text (str): Le texte pré-nettoyé (souvent par Regex).

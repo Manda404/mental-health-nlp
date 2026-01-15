@@ -1,3 +1,4 @@
+# mh_nlp/infrastructure/nlp/tokenizers.py
 from typing import List
 
 from loguru import logger
@@ -30,9 +31,11 @@ class SpacyTokenizerAdapter(CleaningEngine):
             # On désactive les composants inutiles pour la vitesse (NER et Parser)
             self.nlp = spacy.load(model, disable=["parser", "ner"])
             logger.info(f"SpacyTokenizerAdapter : Modèle '{model}' chargé avec succès.")
-        except OSError:
+        except OSError as e:
             logger.error(f"SpacyTokenizerAdapter : Modèle '{model}' introuvable.")
-            raise OSError(f"Exécuter : python -m spacy download {model}")
+            # Use 'from e' to link the new exception to the original cause
+            raise OSError(f"Exécuter : python -m spacy download {model}") from e
+
 
     def process_text(self, text: str) -> List[str]:
         """

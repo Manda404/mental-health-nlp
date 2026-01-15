@@ -3,5 +3,6 @@ data/*
 .mypy_cache
 .ruff_cache
 .env
-__pycache__poetry.lock
+__pycache__
 poetry.lock
+

@@ -19,6 +19,7 @@ loguru = "^0.7.2"
 
 # NLP
 spacy = "^3.7.2"
+en_core_web_sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.0/en_core_web_sm-3.7.0-py3-none-any.whl"}
 
 # PyTorch / Transformers
 torch = "^2.2.0"

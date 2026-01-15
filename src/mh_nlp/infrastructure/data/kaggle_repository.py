@@ -37,7 +37,7 @@ class KaggleDatasetRepository(DatasetRepository):
             df = pd.read_csv(self.csv_path)
 
             # 2. Nettoyage technique immédiat
-            df = df.drop(columns=["Unnamed: 0"], errors="ignore")
+            df = df.drop(columns=["Unnamed: 0"], errors="ignore").head(2000)
 
             entities = []
 
