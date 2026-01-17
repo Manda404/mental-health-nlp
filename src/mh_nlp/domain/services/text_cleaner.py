@@ -1,78 +1,64 @@
-# mh_nlp/domain/services/text_cleaner.py
 import re
 
 from loguru import logger
 
 from mh_nlp.domain.entities.document import Document
-from mh_nlp.domain.ports.cleaning_engine import CleaningEngine
 
 
 class TextCleaner:
     """
-    Service Domaine orchestrant la politique de nettoyage des textes.
-
+    Service de domaine orchestrant le nettoyage de surface des documents.
+    
     Responsabilités :
-    1. Validation métier (Document) : Vérification de l'intégrité des données d'entrée.
-    2. Normalisation métier (Regex) : Suppression du bruit (URLs, handles, caractères spéciaux)
-       via des patterns pré-compilés pour maximiser la performance.
-    3. Délégation linguistique (CleaningEngine) : Traitement avancé (stop-words, lemmatisation).
-
-    Optimisation :
-    - Utilise des expressions régulières pré-compilées au niveau de la classe pour éviter
-      le overhead de compilation à chaque appel de la méthode clean().
-    - Réduit les copies de chaînes en mémoire en fusionnant les patterns de suppression.
+    1. Nettoyage technique (HTML, URLs, Mentions).
+    2. Normalisation de la casse (Lowercase).
+    3. Préservation du sens (conservation des négations et de l'intensité).
+    4. Filtrage des débris de caractères isolés.
     """
 
-    # Patterns pré-compilés pour la performance
-    # Supprime URLs, mentions (@), hashtags (#) et tout ce qui n'est pas a-z ou espace
-    _RE_NOISE = re.compile(r"http\S+|www\S+|@\w+|#\w+|[^a-z\s]")
-    # Normalise les espaces multiples
+    # Patterns pré-compilés pour une performance maximale
+    _RE_HTML = re.compile(r'<.*?>')
+    _RE_URLS = re.compile(r"https?://\S+|www\S+")
+    _RE_MENTIONS = re.compile(r"@\w+|#\w+")
+    # On garde l'apostrophe pour ne pas casser "can't", "don't", "i'm"
+    _RE_SPECIAL_CHARS = re.compile(r"[^a-zA-Z\s']")
     _RE_SPACES = re.compile(r"\s+")
-
-    def __init__(self, engine: CleaningEngine):
-        self.engine = engine
-
-        # On vérifie si l'engine a un batch_size (cas du SpacyTokenizerAdapter)
-        self.has_batch_mode = getattr(engine, "batch_size", None) is not None
-        logger.debug(f"TextCleaner initialisé avec {engine.__class__.__name__} (Batch mode: {self.has_batch_mode})")
-
-        logger.debug(f"TextCleaner initialisé avec {engine.__class__.__name__}")
 
     def clean(self, document: Document) -> str:
         """
-        Nettoie un Document et retourne un texte normalisé prêt pour le ML.
-
+        Nettoie le texte en profondeur sans altérer les mots porteurs de sens.
+        
         Args:
-            document (Document): L'objet document contenant le texte brut.
-
+            document (Document): L'entité contenant le texte brut.
+            
         Returns:
-            str: Le texte nettoyé, tokenisé par le moteur et reformaté en chaîne.
+            str: Texte nettoyé et normalisé pour le Deep Learning.
         """
-        if document.is_empty():
-            logger.warning("Document vide reçu → nettoyage ignoré")
+        if not document or document.is_empty():
+            logger.warning("Document vide ou nul reçu → nettoyage ignoré.")
             return ""
 
-        # ----------------------------
-        # Phase 1 — Normalisation métier (Optimisée)
-        # ----------------------------
-        # Passage en minuscule unique
-        text = document.text.lower()
+        # 1. Suppression du HTML (évite les résidus type 'p' ou 'br')
+        text = self._RE_HTML.sub(' ', document.text)
 
-        # Suppression du bruit en une seule passe sur les patterns combinés
-        text = self._RE_NOISE.sub("", text)
+        # 2. Normalisation de la casse
+        text = text.lower()
 
-        # Nettoyage final des espaces blancs
-        text = self._RE_SPACES.sub(" ", text).strip()
+        # 3. Suppression du bruit Web (URLs, @Mentions, #Hashtags)
+        text = self._RE_URLS.sub('', text)
+        text = self._RE_MENTIONS.sub('', text)
 
-        # ----------------------------
-        # Phase 2 — Traitement linguistique
-        # ----------------------------
-        try:
-            tokens = self.engine.process_text(text)
-            return " ".join(tokens).strip()
+        # 4. Suppression des caractères spéciaux (sauf lettres et apostrophes)
+        text = self._RE_SPECIAL_CHARS.sub(' ', text)
 
-        except Exception as exc:
-            logger.error(
-                f"Erreur moteur linguistique : {exc} — fallback sur texte normalisé"
-            )
-            return text
+        # 5. Filtrage fin et gestion des mots isolés
+        words = text.split()
+        # On garde les mots > 1 lettre OU le pronom 'i' (crucial en anglais)
+        # On ne filtre PAS les stop-words ici pour garder 'not', 'very', etc.
+        # cleaned_words = [w for w in words if len(w) > 1 or w == 'i']
+        cleaned_words = [w for w in words if len(w) > 1]
+        
+        text = " ".join(cleaned_words)
+
+        # 6. Nettoyage final des espaces blancs
+        return self._RE_SPACES.sub(" ", text).strip()
