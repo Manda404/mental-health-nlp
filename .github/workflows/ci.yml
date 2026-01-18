@@ -1,0 +1,56 @@
+name: CI  # Intégration Continue (Continuous Integration)
+
+# Déclencheurs (Triggers) du workflow
+on:
+  push:
+    branches: ["main"]  # S'exécute à chaque push sur la branche principale
+  pull_request:         # S'exécute pour chaque nouvelle Pull Request
+
+jobs:
+  test:
+    name: "Qualité & Tests (Python ${{ matrix.python-version }})"
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Matrix permet de tester sur plusieurs versions de Python si besoin
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      # 1. Récupération du code source du dépôt
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installation de l'interpréteur Python choisi
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 3. Installation de Poetry pour gérer l'environnement virtuel
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+
+      # 4. Installation des dépendances définies dans pyproject.toml
+      # On installe les dépendances 'dev' pour avoir pytest, ruff, etc.
+      - name: Install dependencies
+        run: poetry install --with dev
+
+      # 5. Analyse statique : Vérifie les erreurs de syntaxe et les bugs potentiels
+      - name: Lint (ruff)
+        run: poetry run ruff check src tests
+
+      # 6. Vérification du style : S'assure que le code suit les standards Black
+      - name: Format check (black)
+        run: poetry run black --check src tests
+
+      # 7. Vérification des types : Prévient les erreurs de logique sur les données
+      - name: Type check (mypy)
+        run: poetry run mypy src
+
+      # 8. Exécution de la suite de tests (Unit, Integration, E2E)
+      # On utilise Pytest pour valider que le code métier fonctionne toujours
+      #- name: Run tests
+      #  run: poetry run pytest

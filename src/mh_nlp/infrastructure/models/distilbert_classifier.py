@@ -1,4 +1,5 @@
 from typing import List
+import numpy as np
 
 import torch
 from torch.nn.functional import softmax
@@ -9,6 +10,7 @@ from mh_nlp.domain.entities.document import Document
 from mh_nlp.domain.ports.classifier import TextClassifier
 from mh_nlp.infrastructure.training.torch_trainer import TorchTrainer
 from mh_nlp.application.dto.dataset_dto import DatasetDTO
+from sklearn.utils.class_weight import compute_class_weight
 
 class MentalHealthDataset(Dataset):
     """Dataset interne pour mapper les tenseurs et les labels."""
@@ -48,9 +50,20 @@ class DistilBertClassifier(TextClassifier):
             val_enc = self.tokenizer.tokenize(validation_data.documents)
             val_dataset = MentalHealthDataset(val_enc, validation_data.labels)
             val_loader = DataLoader(val_dataset, batch_size=16)
+        
+        weights = compute_class_weight(
+            "balanced",
+            classes=np.unique(train_data.labels),
+            y=train_data.labels
+        )
+
+        loss_fn = torch.nn.CrossEntropyLoss(
+            weight=torch.tensor(weights).to(self.device)
+        )
+
 
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=2e-5)
-        loss_fn = torch.nn.CrossEntropyLoss()
+        #loss_fn = torch.nn.CrossEntropyLoss()
         
         trainer = TorchTrainer(self.model, optimizer, loss_fn, self.device)
         trainer.train(train_loader, epochs=3, val_loader=val_loader)

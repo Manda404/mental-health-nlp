@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.nn.functional as F
 from typing import List
 from transformers import RobertaForSequenceClassification
@@ -8,6 +9,7 @@ from mh_nlp.domain.entities.document import Document
 from mh_nlp.infrastructure.models.distilbert_classifier import MentalHealthDataset
 from mh_nlp.infrastructure.training.torch_trainer import TorchTrainer
 from mh_nlp.application.dto.dataset_dto import DatasetDTO
+from sklearn.utils.class_weight import compute_class_weight
 
 class RobertaClassifier(TextClassifier):
     """Adaptateur pour RoBERTa (plus robuste sur le contexte long)."""
@@ -29,8 +31,19 @@ class RobertaClassifier(TextClassifier):
             val_dataset = MentalHealthDataset(val_enc, validation_data.labels)
             val_loader = DataLoader(val_dataset, batch_size=16)
 
+
+        weights = compute_class_weight(
+            "balanced",
+            classes=np.unique(train_data.labels),
+            y=train_data.labels
+        )
+
+        loss_fn = torch.nn.CrossEntropyLoss(
+            weight=torch.tensor(weights).to(self.device)
+        )
+        #loss_fn = torch.nn.CrossEntropyLoss()
+
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=1e-5)
-        loss_fn = torch.nn.CrossEntropyLoss()
         trainer = TorchTrainer(self.model, optimizer, loss_fn, self.device)
         trainer.train(train_loader=loader, epochs=3, val_loader=val_loader)
 

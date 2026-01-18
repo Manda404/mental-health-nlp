@@ -1,0 +1,16 @@
+model:
+  name: distilbert_cnn   # distilbert | distilbert_cnn | roberta | cnn_keras
+
+training:
+  epochs: 10
+  batch_size: 16
+
+tokenizer:
+  max_length: 100
+  vocab_size: 10000   # utilisé seulement pour CNN Keras
+
+labels:
+  classes:
+    - Anxiety
+    - Depression
+    - Normal

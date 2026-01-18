@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import List
@@ -8,6 +9,8 @@ from mh_nlp.domain.ports.classifier import TextClassifier
 from mh_nlp.domain.entities.document import Document
 from mh_nlp.infrastructure.models.distilbert_classifier import MentalHealthDataset
 from mh_nlp.infrastructure.training.torch_trainer import TorchTrainer
+from sklearn.utils.class_weight import compute_class_weight
+
 
 class HybridBertCNN(nn.Module):
     """Modèle hybride : BERT pour le sens global, CNN pour les n-grammes émotionnels."""
@@ -43,10 +46,26 @@ class HybridClassifier(TextClassifier):
         train_dataset = MentalHealthDataset(train_enc, train_data.labels)
         train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 
+        val_loader = None
+        if validation_data:
+            val_enc = self.tokenizer.tokenize(validation_data.documents)
+            val_dataset = MentalHealthDataset(val_enc, validation_data.labels)
+            val_loader = DataLoader(val_dataset, batch_size=16)
+
+        weights = compute_class_weight(
+            "balanced",
+            classes=np.unique(train_data.labels),
+            y=train_data.labels
+        )
+
+        loss_fn = torch.nn.CrossEntropyLoss(
+            weight=torch.tensor(weights).to(self.device)
+        )
+
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=1e-5)
-        loss_fn = torch.nn.CrossEntropyLoss()
+        #loss_fn = torch.nn.CrossEntropyLoss()
         trainer = TorchTrainer(self.model, optimizer, loss_fn, self.device)
-        trainer.train(train_loader, epochs=3)
+        trainer.train(train_loader=train_loader, epochs=3, val_loader=val_loader)
 
     def predict(self, documents: List[Document]) -> List[int]:
         logits = self._get_logits(documents)

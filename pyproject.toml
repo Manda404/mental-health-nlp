@@ -83,3 +83,6 @@ addopts = "-ra --cov=src/mh_nlp --cov-report=term-missing"
 python_version = "3.10"
 warn_unused_configs = true
 ignore_missing_imports = true
+
+[tool.poetry.scripts]
+mh-nlp = "mh_nlp.interface.cli:main"
