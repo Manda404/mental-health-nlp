@@ -8,7 +8,10 @@ from mh_nlp.application.dto.dataset_dto import DatasetDTO
 from tensorflow.keras.layers import Embedding, Conv1D, GlobalMaxPooling1D, Dense, Dropout
 
 class KerasCNNClassifier(TextClassifier):
-    """Implémentation CNN via TensorFlow/Keras."""
+    """
+    Classifieur basé sur un CNN simple avec TensorFlow/Keras.
+    Utilise KerasTextTokenizer pour la vectorisation.
+    """
     def __init__(self, vocab_size: int, embedding_dim: int, max_length: int, num_labels: int, tokenizer):
         self.tokenizer = tokenizer
         self.max_length = max_length
@@ -34,6 +37,7 @@ class KerasCNNClassifier(TextClassifier):
         x_val = self.tokenizer.tokenize(validation_data.documents)
         y_val = np.array(validation_data.labels)
 
+        print("Entraînement du CNN Keras...")
         # Utilise la barre de progression native de Keras (verbose=1)
         self.model.fit(
             x_train, y_train,
@@ -44,9 +48,11 @@ class KerasCNNClassifier(TextClassifier):
         )
 
     def predict(self, documents: List[Document]) -> List[int]:
+        """Retourne les classes prédites."""
         probs = self.predict_proba(documents)
         return np.argmax(probs, axis=1).tolist()
 
     def predict_proba(self, documents: List[Document]):
+        """Retourne les probabilités pour chaque classe."""
         sequences = self.tokenizer.tokenize(documents)
         return self.model.predict(sequences, verbose=0)

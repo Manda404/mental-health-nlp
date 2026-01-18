@@ -23,10 +23,16 @@ class RobertaClassifier(TextClassifier):
         dataset = MentalHealthDataset(train_enc, train_data.labels)
         loader = DataLoader(dataset, batch_size=16, shuffle=True)
         
+        val_loader = None
+        if validation_data:
+            val_enc = self.tokenizer.tokenize(validation_data.documents)
+            val_dataset = MentalHealthDataset(val_enc, validation_data.labels)
+            val_loader = DataLoader(val_dataset, batch_size=16)
+
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=1e-5)
         loss_fn = torch.nn.CrossEntropyLoss()
         trainer = TorchTrainer(self.model, optimizer, loss_fn, self.device)
-        trainer.train(loader, epochs=3)
+        trainer.train(train_loader=loader, epochs=3, val_loader=val_loader)
 
     def predict(self, documents: List[Document]) -> List[int]:
         logits = self._get_logits(documents)
